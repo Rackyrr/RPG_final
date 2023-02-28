@@ -40,7 +40,7 @@ public class Game_Logic {
 			move(command);
 		}
 		if (command[0].equals("fight")) {
-			fight();
+			fight(); 
 		}
 		
 	}
@@ -166,6 +166,8 @@ public class Game_Logic {
 		boolean ennemi_autour = false;
 		int coord_en_Y = 0;
 		int coord_en_X = 0;
+		boolean EnnemiDead = false;
+		boolean PCDead = false;
 		if (Game_Objects.map[Game_Objects.pc.coord_Y+1][Game_Objects.pc.coord_X] != 'X' 
 				&& Game_Objects.map[Game_Objects.pc.coord_Y+1][Game_Objects.pc.coord_X] != ' ' 
 				&& Game_Objects.map[Game_Objects.pc.coord_Y+1][Game_Objects.pc.coord_X] != 'C') {
@@ -199,26 +201,19 @@ public class Game_Logic {
 		}
 		if (ennemi_autour == true) {
 			NPC Ennemi = null;
-			System.out.println(coord_en_Y);
-			System.out.println(coord_en_X);
-			System.out.println(Game_Objects.NPCDataBase.get(0).coord_Y);
-			System.out.println(Game_Objects.NPCDataBase.get(0).coord_X);
-			System.out.println(Game_Objects.NPCDataBase.get(0).name);
 			for (int index_liste_npc=0; index_liste_npc < Game_Objects.NPCDataBase.size();index_liste_npc+=1 ) {
 				if (Game_Objects.NPCDataBase.get(index_liste_npc).coord_Y == coord_en_Y 
 						&& Game_Objects.NPCDataBase.get(index_liste_npc).coord_X == coord_en_X ) {
 					Ennemi = Game_Objects.NPCDataBase.get(index_liste_npc);
 				}
 			}			
-			System.out.println("Vous entrez en combat avec un"
+			System.out.println("Vous entrez en combat avec un "
 					+ Ennemi.name);
 			if (Game_Objects.pc.speed > Ennemi.speed) {
 				System.out.println("Vous êtes plus rapide que l'adversaire, "
 						+ "vous attaquez en premier");
 				@SuppressWarnings("resource")
 				Scanner scan = new Scanner(System.in);
-				boolean EnnemiDead = false;
-				boolean PCDead = false;
 				while(true) {
 					int Degat = 0;
 					System.out.println("C'est votre tour");
@@ -258,12 +253,59 @@ public class Game_Logic {
 						break;
 					}
 				}
-				if (PCDead) {
-					System.out.println("Vous êtes mort");
+			}
+			if (Game_Objects.pc.speed < Ennemi.speed) {
+				System.out.println("Le " + Ennemi.name + "est plus rapide que vous,"
+						+ "il a donc l'avantage");
+				@SuppressWarnings("resource")
+				Scanner scan = new Scanner(System.in);
+				while(true) {
+					int Degat = 0;
+					System.out.println("C'est au tour du "
+							+ Ennemi.name);
+					Degat = Ennemi.attack - Game_Objects.pc.defence;
+					if (Degat < 0)
+						Degat = 0;
+					System.out.println("Il vous attaque et vous inflige"
+							+ Degat);
+					Game_Objects.pc.hp -= Degat;
+					if (Game_Objects.pc.hp <= 0) {
+						PCDead = true;
+						break;
+					}
+					System.out.println("C'est votre tour");
+					System.out.println("Que voulez vous faire ?");
+					System.out.println("Vous pouvez :");
+					System.out.println("Attack 		Flee");
+					String Command_fight  = scan.nextLine();
+					if (Command_fight.equalsIgnoreCase("attack")) {
+						Degat = Game_Objects.pc.attack - Ennemi.defence;
+						if (Degat < 0)
+							Degat = 0;
+						System.out.println("Vous attaquez le "
+								+ Ennemi.name
+								+" et vous lui inflige "
+								+ Degat
+								+" points de degats");
+						Ennemi.hp -= Degat;
+						if (Ennemi.hp <= 0) {
+							EnnemiDead = true;
+							break;
+						}
+					}
+					if (Command_fight.equalsIgnoreCase("flee")) {
+						System.out.println("Vous fuyez le combat");
+						break;
+					}
 				}
-				if (EnnemiDead) {
-					System.out.println("Vous avez vaincu le "+ Ennemi.name);
-				}
+			}
+			if (PCDead) {
+				System.out.println("Vous etes mort");
+				Game_Objects.pc.IsDead = true;
+			}
+			if (EnnemiDead) {
+				System.out.println("Vous avez vaincu le "+ Ennemi.name);
+				Game_Objects.map[Ennemi.coord_Y][Ennemi.coord_X] =' ';
 			}
 		}
 	}

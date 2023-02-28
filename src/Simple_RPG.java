@@ -7,7 +7,7 @@ public class Simple_RPG {
 		Game_Objects.initalizeNPCArray();
 		Game_Objects.initalizeItemArray();
 		gl.createCharacter();
-		while(true)
+		while(Game_Objects.pc.IsDead == false)
 		{
 		game_loop();
 		}

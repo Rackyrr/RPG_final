@@ -10,6 +10,7 @@ public class PC {
 	int defence;
 	int speed;
 	int InRoom = 0;
+	boolean IsDead = false;
 	ArrayList<Item> item = new ArrayList<Item>();
 
 	
