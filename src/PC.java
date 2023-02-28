@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 
 public class PC {
 	String name;
@@ -11,7 +10,8 @@ public class PC {
 	int speed;
 	int InRoom = 0;
 	boolean IsDead = false;
-	ArrayList<Item> item = new ArrayList<Item>();
+	Weapon weaponEquiped;
+	Artefact artefactEquiped;
 
 	
 	public void look() {

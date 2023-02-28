@@ -21,30 +21,66 @@ public class Game_Logic {
 	}
 
 	public void processCommand(String[] command) {
-		if (command[0].equals("look")) {
-			look(command);
-		}
-		if (command[0].equals("summon")) {
-			summon(command);
-		}
-		if (command[0].equals("create")) {
-			create_item(command);
-		}
-		if (command[0].equals("get")) {
-			get(command);
-		}
-		if (command[0].equals("show")) {
+		if (command[0].equalsIgnoreCase("show")) {
 			showMap();
 		}
-		if (command[0].equals("move")) {
+		if (command[0].equalsIgnoreCase("move")) {
 			move(command);
 		}
-		if (command[0].equals("fight")) {
+		if (command[0].equalsIgnoreCase("fight")) {
 			fight(); 
 		}
+		if (command[0].equalsIgnoreCase("inventory")) {
+			Inventory.CheckInventory();
+		}
+		if (command[0].equalsIgnoreCase("equip")) {
+			Inventory.Equip(command);
+		}
+		if (command[0].equalsIgnoreCase("remove")) {
+			Inventory.Unequiped(command);
+		}
+		if (command[0].equalsIgnoreCase("open")) {
+			boolean IsAchest = false;
+			int coord_ch_Y = 0;
+			int coord_ch_X = 0;
+			Chest localChest = null;
+			if (Game_Objects.map[Game_Objects.pc.coord_Y+1][Game_Objects.pc.coord_X] == 'C') {
+				IsAchest = true;
+				coord_ch_Y = Game_Objects.pc.coord_Y+1;
+				coord_ch_X = Game_Objects.pc.coord_X;
+			}
+			if (Game_Objects.map[Game_Objects.pc.coord_Y-1][Game_Objects.pc.coord_X] == 'C') {
+				IsAchest = true;
+				coord_ch_Y = Game_Objects.pc.coord_Y-1;
+				coord_ch_X = Game_Objects.pc.coord_X;
+			}
+			if (Game_Objects.map[Game_Objects.pc.coord_Y][Game_Objects.pc.coord_X+1] == 'C') {
+				IsAchest = true;
+				coord_ch_Y = Game_Objects.pc.coord_Y;
+				coord_ch_X = Game_Objects.pc.coord_X+1;
+			}
+			if (Game_Objects.map[Game_Objects.pc.coord_Y][Game_Objects.pc.coord_X-1] == 'C') {
+				IsAchest = true;
+				coord_ch_Y = Game_Objects.pc.coord_Y;
+				coord_ch_X = Game_Objects.pc.coord_X-1;
+			}
+			if (IsAchest == false) {
+				System.out.println("Il n'y a pas de coffre aux alentours");
+			}
+			if (IsAchest == true) {
+				for (int index_coffre=0; index_coffre < Game_Objects.ChestDataBase.size(); index_coffre +=1) {
+					if (Game_Objects.ChestDataBase.get(index_coffre).coord_X == coord_ch_X 
+							&& Game_Objects.ChestDataBase.get(index_coffre).coord_Y == coord_ch_Y ) {
+						localChest = Game_Objects.ChestDataBase.get(index_coffre);
+					}
+				}
+				localChest.OpenChest();
+			}
+		}
+		
 		
 	}
-	public void look(String[] command) {
+	/*public void look(String[] command) {
 		if (command.length == 1) {
 			for (int i=0; i < Game_Objects.room.size(); i+=1) {
 				if (Game_Objects.room.get(i).number == Game_Objects.pc.InRoom) {
@@ -76,7 +112,7 @@ public class Game_Logic {
 				}
 			}
 		}
-	}
+	}*/
 	
 	public static void showMap() {
 		for (int i=0; i < Game_Objects.map.length; i+=1) {
@@ -209,7 +245,7 @@ public class Game_Logic {
 			}			
 			System.out.println("Vous entrez en combat avec un "
 					+ Ennemi.name);
-			if (Game_Objects.pc.speed > Ennemi.speed) {
+			if ((Game_Objects.pc.speed-Game_Objects.pc.weaponEquiped.MalusOnSpeed) > Ennemi.speed) {
 				System.out.println("Vous êtes plus rapide que l'adversaire, "
 						+ "vous attaquez en premier");
 				@SuppressWarnings("resource")
@@ -222,7 +258,7 @@ public class Game_Logic {
 					System.out.println("Attack 		Flee");
 					String Command_fight  = scan.nextLine();
 					if (Command_fight.equalsIgnoreCase("attack")) {
-						Degat = Game_Objects.pc.attack - Ennemi.defence;
+						Degat = Game_Objects.pc.attack+ Game_Objects.pc.weaponEquiped.Dammage - Ennemi.defence;
 						if (Degat < 0)
 							Degat = 0;
 						System.out.println("Vous attaquez le "
@@ -242,7 +278,7 @@ public class Game_Logic {
 					}
 					System.out.println("C'est au tour du "
 							+ Ennemi.name);
-					Degat = Ennemi.attack - Game_Objects.pc.defence;
+					Degat = Ennemi.attack - Game_Objects.pc.defence+Game_Objects.pc.artefactEquiped.BonusDefence;
 					if (Degat < 0)
 						Degat = 0;
 					System.out.println("Il vous attaque et vous inflige"
@@ -254,7 +290,7 @@ public class Game_Logic {
 					}
 				}
 			}
-			if (Game_Objects.pc.speed < Ennemi.speed) {
+			if ((Game_Objects.pc.speed-Game_Objects.pc.weaponEquiped.MalusOnSpeed) < Ennemi.speed) {
 				System.out.println("Le " + Ennemi.name + "est plus rapide que vous,"
 						+ "il a donc l'avantage");
 				@SuppressWarnings("resource")
@@ -263,7 +299,7 @@ public class Game_Logic {
 					int Degat = 0;
 					System.out.println("C'est au tour du "
 							+ Ennemi.name);
-					Degat = Ennemi.attack - Game_Objects.pc.defence;
+					Degat = Ennemi.attack - Game_Objects.pc.defence+Game_Objects.pc.artefactEquiped.BonusDefence;
 					if (Degat < 0)
 						Degat = 0;
 					System.out.println("Il vous attaque et vous inflige"
@@ -279,7 +315,7 @@ public class Game_Logic {
 					System.out.println("Attack 		Flee");
 					String Command_fight  = scan.nextLine();
 					if (Command_fight.equalsIgnoreCase("attack")) {
-						Degat = Game_Objects.pc.attack - Ennemi.defence;
+						Degat = Game_Objects.pc.attack+ Game_Objects.pc.weaponEquiped.Dammage - Ennemi.defence;
 						if (Degat < 0)
 							Degat = 0;
 						System.out.println("Vous attaquez le "
@@ -310,7 +346,7 @@ public class Game_Logic {
 		}
 	}
 		
-	@SuppressWarnings("deprecation")
+	/*@SuppressWarnings("deprecation")
 	public void summon(String[] command) {
 		if (command.length == 1) {
 			System.out.println("Invoquer quoi ?");
@@ -383,7 +419,7 @@ public class Game_Logic {
 				}
 			}
 		}
-	}
+	}*/
 	
 	@SuppressWarnings("resource")
 	public void createCharacter() {
@@ -393,6 +429,8 @@ public class Game_Logic {
 		System.out.println("Vous allez commencer votre aventure avec 100hp, "
 				+ "\n "
 				+ "15 points d'attaque, 10 points de defense et 7 points de vitesse.");
+		System.out.println("Vous etes aussi equippe d'un petit glaive et de 2 petites potions de soins");
+		Inventory.initInventory();
 		Game_Objects.pc.hp = 100;
 		Game_Objects.pc.attack = 15;
 		Game_Objects.pc.defence = 10;

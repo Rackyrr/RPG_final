@@ -5,7 +5,9 @@ public class Simple_RPG {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		Game_Objects.initalizeNPCArray();
-		Game_Objects.initalizeItemArray();
+		Game_Objects.initalizeWeaponArray();
+		Game_Objects.initalizePotionArray();;
+		Game_Objects.initalizeArtefactArray();
 		gl.createCharacter();
 		while(Game_Objects.pc.IsDead == false)
 		{
